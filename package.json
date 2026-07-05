@@ -1,5 +1,5 @@
 {
-  "name": "galo-secure-data-lab",
+  "name": "galgo-secure-data-lab",
   "version": "1.0.0",
   "description": "Ingesta, almacenamiento cifrado y consumo seguro de datos de clientes de un proveedor externo (Challenge Seguridad Informatica)",
   "private": true,

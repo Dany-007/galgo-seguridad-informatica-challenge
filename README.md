@@ -1,4 +1,4 @@
-# GALO · Laboratorio de manejo seguro de información de clientes
+# GALGO · Laboratorio de manejo seguro de información de clientes
 
 Solución funcional al *Challenge de Seguridad Informática*: ingesta de datos de clientes desde un
 proveedor externo, almacenamiento cifrado en una base de datos relacional y exposición controlada

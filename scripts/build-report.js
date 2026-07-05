@@ -679,7 +679,7 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then((buffer) => {
-  const outPath = path.join(__dirname, "..", "Informe_Solucion_GALO.docx");
+  const outPath = path.join(__dirname, "..", "Informe_Solucion_GALGO.docx");
   fs.writeFileSync(outPath, buffer);
   console.log("Informe generado en", outPath);
 });

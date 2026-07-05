@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0"
 
 echo ===================================================
-echo   GALO - Laboratorio de seguridad (inicio)
+echo   GALGO - Laboratorio de seguridad (inicio)
 echo ===================================================
 echo.
 

@@ -2,7 +2,7 @@
 cd /d "%~dp0"
 
 echo ===================================================
-echo   GALO - Laboratorio de seguridad (detener)
+echo   GALGO - Laboratorio de seguridad (detener)
 echo ===================================================
 echo.
 echo Deteniendo los contenedores (los datos se conservan)...

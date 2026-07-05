@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: GALO - API de datos de clientes (proveedor externo)
+  title: GALGO - API de datos de clientes (proveedor externo)
   description: >
     API para consumo interno de la informacion de clientes obtenida del proveedor externo,
     con enmascaramiento de campos sensibles y revelacion auditada bajo autorizacion.

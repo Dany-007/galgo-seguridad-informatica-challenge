@@ -15,7 +15,7 @@ fi
 MSYS_NO_PATHCONV=1 openssl req -x509 -nodes -newkey rsa:2048 -days 365 \
   -keyout "$CERT_DIR/server.key" \
   -out "$CERT_DIR/server.crt" \
-  -subj "//C=CL/O=GALO-Lab/OU=Seguridad Informatica/CN=localhost" \
+  -subj "//C=CL/O=GALGO-Lab/OU=Seguridad Informatica/CN=localhost" \
   -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
 
 chmod 600 "$CERT_DIR/server.key"
