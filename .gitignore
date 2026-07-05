@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.credentials.local.txt
+*.log
+docker/nginx/certs/
+prisma/dev.db
+coverage/
+.DS_Store

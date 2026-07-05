@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GALO · Portal de Consumo de Datos de Clientes</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>GALO · Portal seguro de datos de clientes</h1>
+    <div id="session-info" class="session-info"></div>
+  </header>
+
+  <main>
+    <section id="login-panel" class="card">
+      <h2>Iniciar sesion</h2>
+      <form id="login-form">
+        <label>Usuario
+          <input type="text" id="username" autocomplete="username" required />
+        </label>
+        <label>Contrasena
+          <input type="password" id="password" autocomplete="current-password" required />
+        </label>
+        <button type="submit">Ingresar</button>
+        <p id="login-error" class="error"></p>
+      </form>
+    </section>
+
+    <section id="data-panel" class="card hidden">
+      <div class="toolbar">
+        <h2>Clientes (datos sensibles enmascarados)</h2>
+        <div>
+          <input type="search" id="search-input" placeholder="Buscar por usuario..." />
+          <button id="refresh-btn">Actualizar</button>
+          <button id="logout-btn" class="secondary">Cerrar sesion</button>
+        </div>
+      </div>
+      <table id="usuarios-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Usuario</th>
+            <th>Direccion</th>
+            <th>Tarjeta (enmascarada)</th>
+            <th>Cuenta (enmascarada)</th>
+            <th>Compras</th>
+            <th>Accion</th>
+          </tr>
+        </thead>
+        <tbody id="usuarios-tbody"></tbody>
+      </table>
+      <p id="pagination-info"></p>
+    </section>
+  </main>
+
+  <dialog id="reveal-dialog">
+    <form id="reveal-form">
+      <h3>Revelar datos sensibles</h3>
+      <p>Esta accion queda registrada en el log de auditoria (usuario, fecha, IP y motivo).</p>
+      <label>Motivo (obligatorio)
+        <textarea id="reveal-reason" minlength="10" required></textarea>
+      </label>
+      <div id="reveal-result" class="reveal-result"></div>
+      <div class="dialog-actions">
+        <button type="submit">Revelar</button>
+        <button type="button" id="reveal-cancel" class="secondary">Cerrar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>

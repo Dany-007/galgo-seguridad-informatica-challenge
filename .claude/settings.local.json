@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "PowerShell(Get-Command python, python3, py -ErrorAction SilentlyContinue)",
+      "PowerShell(py --version 2>&1)",
+      "PowerShell(py -c \"import pdfplumber\" 2>&1)",
+      "PowerShell(py -m pip install pdfplumber --quiet 2>&1)",
+      "PowerShell(py -m pip install pypdf --quiet 2>&1)"
+    ]
+  }
+}

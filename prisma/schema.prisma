@@ -1,0 +1,113 @@
+// Prisma schema - Laboratorio de manejo seguro de informacion (Challenge Seguridad Informatica)
+//
+// Decisiones de diseno relevantes para seguridad (ver docs/ARQUITECTURA.md y el informe):
+// - Los campos catalogados como sensibles/PCI (tarjeta, ccv, cuenta, geolocalizacion e IP) NO se
+//   almacenan en texto plano: se guardan cifrados (AES-256-GCM, envelope encryption) en columnas
+//   *_enc (bytea) y solo se expone una version enmascarada (*_mask) para consumo habitual.
+// - No se guarda el PAN completo indexado en texto plano: se guarda un HMAC-SHA256 (pan_hash) para
+//   permitir busquedas/deduplicacion sin exponer ni poder revertir el dato.
+// - Toda revelacion de dato sensible completo queda registrada en AuditLog (quien, cuando, por que).
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  analyst
+  viewer
+  service
+}
+
+model Usuario {
+  id                       Int      @id @default(autoincrement())
+  providerId               String   @unique @map("provider_id") // "id" que entrega el proveedor externo
+  userName                 String   @map("user_name")
+  fecAlta                  DateTime @map("fec_alta")
+  fecBirthday              DateTime @map("fec_birthday")
+  codigoZip                String   @map("codigo_zip")
+  direccion                String
+  colorFavorito            String   @map("color_favorito")
+  fotoDni                  String   @map("foto_dni")
+  avatar                   String
+  auto                     String
+  autoModelo               String   @map("auto_modelo")
+  autoTipo                 String   @map("auto_tipo")
+  autoColor                String   @map("auto_color")
+  cantidadComprasRealizadas Int     @map("cantidad_compras_realizadas")
+
+  // --- Campos sensibles: cifrados en reposo a nivel de aplicacion (AES-256-GCM) ---
+  creditCardEnc   Bytes  @map("credit_card_enc")
+  creditCardMask  String @map("credit_card_mask") // ej: "**** **** **** 5169"
+  panHash         String @map("pan_hash")          // HMAC-SHA256(PAN) para deduplicacion sin exponer el dato
+  creditCardCcvEnc Bytes @map("credit_card_ccv_enc")
+  cuentaNumeroEnc Bytes  @map("cuenta_numero_enc")
+  cuentaNumeroMask String @map("cuenta_numero_mask")
+  geoLatitudEnc   Bytes  @map("geo_latitud_enc")
+  geoLongitudEnc  Bytes  @map("geo_longitud_enc")
+  ipEnc           Bytes  @map("ip_enc")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("usuarios")
+  @@index([userName])
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  lastLoginAt  DateTime? @map("last_login_at")
+
+  @@map("app_users")
+}
+
+model ApiKey {
+  id         Int      @id @default(autoincrement())
+  name       String
+  keyHash    String   @unique @map("key_hash") // SHA-256 de la api key; la key en claro solo se muestra una vez
+  role       Role     @default(service)
+  isActive   Boolean  @default(true) @map("is_active")
+  createdAt  DateTime @default(now()) @map("created_at")
+  lastUsedAt DateTime? @map("last_used_at")
+
+  @@map("api_keys")
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  actor      String   // username o api key name
+  actorRole  Role     @map("actor_role")
+  action     String   // ej: "REVEAL_PAN", "LOGIN", "LIST_USUARIOS", "INGEST_RUN"
+  resource   String?  // ej: "usuario:123"
+  reason     String?  // justificacion obligatoria para acciones sensibles (ej. reveal)
+  ip         String?
+  success    Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("audit_log")
+  @@index([actor])
+  @@index([createdAt])
+}
+
+model IngestionRun {
+  id            Int      @id @default(autoincrement())
+  startedAt     DateTime @default(now()) @map("started_at")
+  finishedAt    DateTime? @map("finished_at")
+  recordsFetched Int?    @map("records_fetched")
+  recordsUpserted Int?   @map("records_upserted")
+  status        String   @default("running") // running | success | failed
+  errorMessage  String?  @map("error_message")
+
+  @@map("ingestion_runs")
+}

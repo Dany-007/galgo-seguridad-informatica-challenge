@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: "Segoe UI", Arial, sans-serif; background:#ffffff; }
+  .canvas { width: 1240px; padding: 40px; position: relative; }
+  h1 { font-size: 20px; color:#0f172a; margin: 0 0 6px 0; }
+  .subtitle { font-size:13px; color:#475569; margin-bottom:22px; }
+
+  .zone { border: 2px dashed #94a3b8; border-radius: 12px; padding: 18px; position: relative; margin-bottom: 20px; }
+  .zone-label { position:absolute; top:-13px; left:20px; background:#fff; padding:0 8px; font-size:12px; font-weight:600; color:#334155; }
+
+  .row { display:flex; align-items:center; gap: 14px; flex-wrap: wrap; }
+  .box { border-radius: 10px; padding: 12px 16px; color:#fff; font-size:12.5px; min-width:135px; text-align:center; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+  .box .t { font-weight:700; font-size:13px; display:block; margin-bottom:3px; }
+  .box .s { font-size:10.5px; opacity:0.92; }
+
+  .edge  { background:#7c2d12; }
+  .waf   { background:#b91c1c; }
+  .lb    { background:#1d4ed8; }
+  .app   { background:#0f766e; }
+  .db    { background:#7c2d12; }
+  .sec   { background:#4338ca; }
+  .ext   { background:#6d28d9; }
+  .client{ background:#334155; }
+
+  .arrow { flex: 0 0 auto; font-size: 18px; color:#334155; text-align:center; }
+  .arrow .lbl { font-size:9.5px; color:#475569; display:block; white-space:nowrap; margin-top: -4px;}
+
+  .az { border:1px solid #cbd5e1; border-radius:8px; padding:10px; background:#f8fafc; }
+  .az-label { font-size:10px; color:#64748b; font-weight:700; margin-bottom:6px; }
+
+  .legend { margin-top: 10px; font-size:11px; color:#475569; display:flex; flex-wrap:wrap; gap: 14px 18px;}
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <h1>GALO — Arquitectura propuesta para producción en la nube (AWS)</h1>
+  <div class="subtitle">Evolución productiva del laboratorio: alta disponibilidad, WAF/Shield gestionado, KMS y cumplimiento continuo</div>
+
+  <div class="row" style="margin-bottom:16px;">
+    <div class="box client"><span class="t">Equipos consumidores</span><span class="s">Apps internas / dashboards / integraciones</span></div>
+    <div class="arrow">&#8594;<span class="lbl">HTTPS<br>DNS: Route 53</span></div>
+    <div class="box edge"><span class="t">CloudFront</span><span class="s">CDN + cache + terminación TLS de borde</span></div>
+    <div class="arrow">&#8594;</div>
+    <div class="box waf"><span class="t">AWS WAF + Shield</span><span class="s">Reglas OWASP Top10<br>mitigación DDoS</span></div>
+  </div>
+
+  <div class="zone">
+    <div class="zone-label">VPC — subredes públicas / privadas / datos, multi-AZ (firewall: Security Groups + NACL)</div>
+    <div class="row" style="margin-bottom:14px;">
+      <div class="box lb"><span class="t">ALB / ELB</span><span class="s">Balanceo de carga multi-AZ<br>health checks</span></div>
+    </div>
+    <div class="row">
+      <div class="az">
+        <div class="az-label">AZ-A (subred privada — app)</div>
+        <div class="box app"><span class="t">ECS/EC2 Auto Scaling</span><span class="s">API Node.js/TS (misma imagen<br>del laboratorio local)</span></div>
+      </div>
+      <div class="az">
+        <div class="az-label">AZ-B (subred privada — app)</div>
+        <div class="box app"><span class="t">ECS/EC2 Auto Scaling</span><span class="s">Réplica activa<br>escalado automático</span></div>
+      </div>
+      <div class="az">
+        <div class="az-label">Subred de datos (sin acceso público)</div>
+        <div class="box db"><span class="t">RDS PostgreSQL Multi-AZ</span><span class="s">Primaria (AZ-A) + Standby (AZ-B)<br>cifrado en reposo con KMS</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-bottom:10px;">
+    <div class="box sec"><span class="t">IAM</span><span class="s">Roles de mínimo privilegio<br>por servicio</span></div>
+    <div class="box sec"><span class="t">KMS + Secrets Manager</span><span class="s">Cifrado de datos y gestión<br>de credenciales/KEK</span></div>
+    <div class="box sec"><span class="t">CloudWatch</span><span class="s">Logs, métricas y alarmas</span></div>
+    <div class="box sec"><span class="t">AWS Config</span><span class="s">Auditoría de configuración<br>y cumplimiento continuo</span></div>
+    <div class="box sec"><span class="t">Amazon Inspector</span><span class="s">Escaneo de vulnerabilidades<br>de instancias e imágenes</span></div>
+    <div class="box sec"><span class="t">NAC / VPN</span><span class="s">Acceso administrativo<br>segmentado (VLANs)</span></div>
+  </div>
+
+  <div class="row">
+    <div class="box ext"><span class="t">Proveedor externo</span><span class="s">mockapi.io/api/v1/usuarios</span></div>
+    <div class="arrow">&#8594;<span class="lbl">HTTPS saliente<br>vía NAT Gateway</span></div>
+  </div>
+
+  <div class="legend">
+    <span><span class="dot" style="background:#334155"></span>Consumidores</span>
+    <span><span class="dot" style="background:#7c2d12"></span>Borde / datos (CloudFront, RDS)</span>
+    <span><span class="dot" style="background:#b91c1c"></span>Protección perimetral (WAF/Shield)</span>
+    <span><span class="dot" style="background:#1d4ed8"></span>Balanceo de carga</span>
+    <span><span class="dot" style="background:#0f766e"></span>Cómputo / lógica de negocio</span>
+    <span><span class="dot" style="background:#4338ca"></span>Seguridad, identidad y cumplimiento</span>
+    <span><span class="dot" style="background:#6d28d9"></span>Origen de datos externo</span>
+  </div>
+</div>
+</body>
+</html>
